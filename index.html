@@ -6,11 +6,20 @@
   <title>Be My Valentine?</title>
   <style>
     :root{
-      --bg1:#ffdee9;
-      --bg2:#b5fffc;
+      /* Orange + Green palette */
+      --bg1:#FFE7C7;         /* soft orange */
+      --bg2:#D6F5E3;         /* soft mint green */
       --card:#ffffffcc;
       --text:#1f2937;
+
+      --yes:#F97316;         /* orange */
+      --yesShadow: rgba(249,115,22,.35);
+
+      --no:#DCFCE7;          /* pale green */
+      --noText:#065F46;      /* deep green */
+      --noShadow: rgba(6,95,70,.18);
     }
+
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -53,7 +62,7 @@
       flex-wrap:wrap;
       position:relative;
       padding:18px 0 6px;
-      min-height:72px; /* helps when No becomes absolute */
+      min-height:86px; /* helps when No becomes absolute */
     }
 
     button{
@@ -65,17 +74,19 @@
       transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
       user-select:none;
       touch-action: manipulation;
+      position:relative;
+      z-index:2; /* keep above background */
     }
     #yesBtn{
-      background: #ff4d6d;
+      background: var(--yes);
       color:white;
-      box-shadow: 0 10px 22px rgba(255,77,109,.35);
+      box-shadow: 0 10px 22px var(--yesShadow);
       transform: scale(1);
     }
     #noBtn{
-      background: #e5e7eb;
-      color:#111827;
-      box-shadow: 0 10px 22px rgba(0,0,0,.08);
+      background: var(--no);
+      color:var(--noText);
+      box-shadow: 0 10px 22px var(--noShadow);
       transform: scale(1);
       position:relative; /* becomes absolute when we start dodging */
     }
@@ -96,18 +107,18 @@
       pointer-events:none;
       opacity:.55;
       background:
-        radial-gradient(circle at 20% 15%, #ff4d6d55 0 8px, transparent 9px),
-        radial-gradient(circle at 80% 25%, #ff4d6d44 0 6px, transparent 7px),
-        radial-gradient(circle at 30% 80%, #ff4d6d33 0 7px, transparent 8px),
-        radial-gradient(circle at 70% 75%, #ff4d6d33 0 6px, transparent 7px);
+        radial-gradient(circle at 20% 15%, rgba(249,115,22,.22) 0 8px, transparent 9px),
+        radial-gradient(circle at 80% 25%, rgba(6,95,70,.18) 0 6px, transparent 7px),
+        radial-gradient(circle at 30% 80%, rgba(249,115,22,.16) 0 7px, transparent 8px),
+        radial-gradient(circle at 70% 75%, rgba(6,95,70,.14) 0 6px, transparent 7px);
       filter: blur(.2px);
+      z-index:0;
     }
 
     .success{
       font-size: clamp(18px, 2.5vw, 22px);
     }
 
-    /* little floating hearts for the YES celebration */
     .float-heart{
       position:absolute;
       left:50%;
@@ -118,6 +129,7 @@
       animation: floatUp 900ms ease-out forwards;
       opacity: 0.95;
       filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
+      z-index:3;
     }
     @keyframes floatUp{
       from { transform: translate(-50%, -50%) translateY(0) scale(1); opacity: .95; }
@@ -128,11 +140,11 @@
 <body>
   <div class="card" id="card">
     <div class="hearts"></div>
-    <h1 id="title">Will you be my Valentine? 💘</h1>
+    <h1 id="title">Hannah, will you be my valentine? 💘</h1>
     <p id="subtitle">I have a very important question…</p>
 
     <div class="buttons" id="btnArea">
-      <button id="yesBtn" aria-label="Yes">Yes 💖</button>
+      <button id="yesBtn" aria-label="Yes">Yes 🧡</button>
       <button id="noBtn" aria-label="No">No 🙃</button>
     </div>
 
@@ -158,7 +170,7 @@
       "Try again 😌",
       "No button seems tired…",
       "Okay but… think of the snacks 🍫",
-      "Think of the cuddles 🧸",
+      "Think of the calls 📞",
       "Last chance… 😭"
     ];
 
@@ -167,98 +179,14 @@
       noBtn.style.transform  = `scale(${noScale})`;
     }
 
-    // Make the No button smaller + Yes bigger whenever she tries clicking No
-    noBtn.addEventListener("click", (e) => {
-      noCount++;
-
-      // Update scales
-      yesScale = Math.min(yesScale + 0.14, 2.6);
-      noScale  = Math.max(noScale  - 0.12, 0.28);
-
-      applyScales();
-
-      // Update message
-      msg.textContent = noMessages[Math.min(noCount - 1, noMessages.length - 1)];
-
-      // After a few "no"s, start dodging (but still possible to click if determined)
-      if (noCount >= 3) enableDodge();
-    });
-
-    // If she hovers/touches the No button, it scoots away (after enabled)
-    let dodgeEnabled = false;
-
-    function enableDodge() {
-      if (dodgeEnabled) return;
-      dodgeEnabled = true;
-
-      // Make it able to move around inside the button area
-      noBtn.style.position = "absolute";
-
-      // Put it near where it already is
-      const areaRect = btnArea.getBoundingClientRect();
-      const noRect = noBtn.getBoundingClientRect();
-      const startLeft = noRect.left - areaRect.left;
-      const startTop  = noRect.top  - areaRect.top;
-
-      noBtn.style.left = `${startLeft}px`;
-      noBtn.style.top  = `${startTop}px`;
-
-      // Move on hover (desktop) and touchstart/pointerdown (mobile)
-      const moveHandler = (ev) => {
-        // Keep it a bit fair: only dodge sometimes
-        if (Math.random() < 0.1) return;
-
-        dodgeNoButton(ev);
-      };
-
-      noBtn.addEventListener("mouseenter", moveHandler);
-      noBtn.addEventListener("pointerdown", moveHandler);
-
-      // If user resizes/rotates, keep within bounds
-      window.addEventListener("resize", keepNoInBounds);
-    }
-
-    function keepNoInBounds() {
-      if (!dodgeEnabled) return;
-      const { maxLeft, maxTop } = getBounds();
-      const curLeft = px(noBtn.style.left);
-      const curTop  = px(noBtn.style.top);
-
-      noBtn.style.left = `${clamp(curLeft, 0, maxLeft)}px`;
-      noBtn.style.top  = `${clamp(curTop, 0, maxTop)}px`;
-    }
-
-    function dodgeNoButton(ev) {
-      const { maxLeft, maxTop } = getBounds();
-
-      // If the button gets too tiny, make it basically impossible 😈
-      const intensity = Math.min(1 + noCount * 0.15, 2.2);
-
-      const randLeft = Math.random() * maxLeft;
-      const randTop  = Math.random() * maxTop;
-
-      // Nudge away from pointer if we can detect it
-      let left = randLeft;
-      let top  = randTop;
-
-      const areaRect = btnArea.getBoundingClientRect();
-      const pointerX = ev?.clientX ?? (areaRect.left + areaRect.width / 2);
-      const pointerY = ev?.clientY ?? (areaRect.top + areaRect.height / 2);
-
-      const currentLeft = px(noBtn.style.left);
-      const currentTop  = px(noBtn.style.top);
-
-      // Vector away from pointer
-      const btnCenterX = areaRect.left + currentLeft + noBtn.offsetWidth / 2;
-      const btnCenterY = areaRect.top  + currentTop  + noBtn.offsetHeight / 2;
-      const dx = btnCenterX - pointerX;
-      const dy = btnCenterY - pointerY;
-
-      left = clamp(currentLeft + dx * 0.35 * intensity + (Math.random() - 0.5) * 40, 0, maxLeft);
-      top  = clamp(currentTop  + dy * 0.35 * intensity + (Math.random() - 0.5) * 30, 0, maxTop);
-
-      noBtn.style.left = `${left}px`;
-      noBtn.style.top  = `${top}px`;
+    // --- Collision helpers: prevent No from overlapping Yes ---
+    function rectsOverlap(a, b, padding = 10){
+      return !(
+        a.right  < b.left  + padding ||
+        a.left   > b.right - padding ||
+        a.bottom < b.top   + padding ||
+        a.top    > b.bottom- padding
+      );
     }
 
     function getBounds() {
@@ -267,7 +195,6 @@
       const btnW  = noBtn.offsetWidth;
       const btnH  = noBtn.offsetHeight;
 
-      // Keep fully inside the area
       return {
         maxLeft: Math.max(0, areaW - btnW),
         maxTop:  Math.max(0, areaH - btnH)
@@ -277,36 +204,189 @@
     function clamp(n, min, max){ return Math.min(max, Math.max(min, n)); }
     function px(v){ return Number(String(v || "0").replace("px","")) || 0; }
 
-    // YES = celebrate + lock in
-    yesBtn.addEventListener("click", () => {
-      msg.innerHTML = `<span class="success">YAYYY!! 💞🥰💍</span>`;
-      title.textContent = "It’s a date! 💘";
-      subtitle.textContent = "Best decision ever. See you soon 😘";
+    function placeNoSafely(preferLeft, preferTop){
+      const { maxLeft, maxTop } = getBounds();
 
-      // Disable buttons
+      // Yes button rect in the same coordinate space as btnArea
+      const areaRect = btnArea.getBoundingClientRect();
+      const yesRect  = yesBtn.getBoundingClientRect();
+      const yesLocal = {
+        left:   yesRect.left - areaRect.left,
+        top:    yesRect.top  - areaRect.top,
+        right:  yesRect.right- areaRect.left,
+        bottom: yesRect.bottom- areaRect.top
+      };
+
+      const pad = 12;
+
+      // Try preferred spot first, then random attempts
+      const tries = [];
+      if (typeof preferLeft === "number" && typeof preferTop === "number"){
+        tries.push({left: preferLeft, top: preferTop});
+      }
+      for (let i=0;i<40;i++){
+        tries.push({
+          left: Math.random()*maxLeft,
+          top:  Math.random()*maxTop
+        });
+      }
+
+      for (const t of tries){
+        const left = clamp(t.left, 0, maxLeft);
+        const top  = clamp(t.top,  0, maxTop);
+
+        // No button rect (local)
+        const noLocal = {
+          left,
+          top,
+          right: left + noBtn.offsetWidth,
+          bottom: top + noBtn.offsetHeight
+        };
+
+        if (!rectsOverlap(noLocal, yesLocal, pad)){
+          noBtn.style.left = `${left}px`;
+          noBtn.style.top  = `${top}px`;
+          return true;
+        }
+      }
+
+      // Fallback: if area is too tight, push it to farthest corner from Yes
+      const corners = [
+        {left: 0,       top: 0},
+        {left: maxLeft, top: 0},
+        {left: 0,       top: maxTop},
+        {left: maxLeft, top: maxTop}
+      ];
+      corners.sort((c1, c2) => {
+        const d1 = distToYes(c1.left, c1.top, yesLocal);
+        const d2 = distToYes(c2.left, c2.top, yesLocal);
+        return d2 - d1;
+      });
+
+      const best = corners[0];
+      noBtn.style.left = `${best.left}px`;
+      noBtn.style.top  = `${best.top}px`;
+      return false;
+    }
+
+    function distToYes(noLeft, noTop, yesLocal){
+      const noCx = noLeft + noBtn.offsetWidth/2;
+      const noCy = noTop  + noBtn.offsetHeight/2;
+      const yesCx = (yesLocal.left + yesLocal.right)/2;
+      const yesCy = (yesLocal.top  + yesLocal.bottom)/2;
+      const dx = noCx - yesCx, dy = noCy - yesCy;
+      return Math.hypot(dx, dy);
+    }
+
+    // Make the No button smaller + Yes bigger whenever she tries clicking No
+    noBtn.addEventListener("click", () => {
+      noCount++;
+
+      yesScale = Math.min(yesScale + 0.14, 2.6);
+      noScale  = Math.max(noScale  - 0.12, 0.28);
+
+      applyScales();
+
+      msg.textContent = noMessages[Math.min(noCount - 1, noMessages.length - 1)];
+
+      if (noCount >= 3) enableDodge();
+    });
+
+    // Dodging
+    let dodgeEnabled = false;
+
+    function enableDodge() {
+      if (dodgeEnabled) return;
+      dodgeEnabled = true;
+
+      noBtn.style.position = "absolute";
+
+      // Put it near where it already is (but not overlapping Yes)
+      const areaRect = btnArea.getBoundingClientRect();
+      const noRect = noBtn.getBoundingClientRect();
+      const startLeft = noRect.left - areaRect.left;
+      const startTop  = noRect.top  - areaRect.top;
+
+      // Make sure it doesn't start overlapping
+      placeNoSafely(startLeft, startTop);
+
+      const moveHandler = (ev) => {
+        if (Math.random() < 0.08) return; // tiny chance it stays put
+        dodgeNoButton(ev);
+      };
+
+      noBtn.addEventListener("mouseenter", moveHandler);
+      noBtn.addEventListener("pointerdown", moveHandler);
+
+      window.addEventListener("resize", keepNoInBoundsAndSeparated);
+    }
+
+    function keepNoInBoundsAndSeparated() {
+      if (!dodgeEnabled) return;
+
+      const { maxLeft, maxTop } = getBounds();
+      const curLeft = px(noBtn.style.left);
+      const curTop  = px(noBtn.style.top);
+
+      // Clamp into bounds, then ensure separation from Yes
+      const clampedLeft = clamp(curLeft, 0, maxLeft);
+      const clampedTop  = clamp(curTop, 0, maxTop);
+      placeNoSafely(clampedLeft, clampedTop);
+    }
+
+    function dodgeNoButton(ev) {
+      const { maxLeft, maxTop } = getBounds();
+      const areaRect = btnArea.getBoundingClientRect();
+
+      const pointerX = ev?.clientX ?? (areaRect.left + areaRect.width / 2);
+      const pointerY = ev?.clientY ?? (areaRect.top + areaRect.height / 2);
+
+      const currentLeft = px(noBtn.style.left);
+      const currentTop  = px(noBtn.style.top);
+
+      // Vector away from pointer + randomness
+      const btnCenterX = areaRect.left + currentLeft + noBtn.offsetWidth / 2;
+      const btnCenterY = areaRect.top  + currentTop  + noBtn.offsetHeight / 2;
+      const dx = btnCenterX - pointerX;
+      const dy = btnCenterY - pointerY;
+
+      const intensity = Math.min(1 + noCount * 0.18, 2.5);
+      let nextLeft = currentLeft + dx * 0.35 * intensity + (Math.random() - 0.5) * 40;
+      let nextTop  = currentTop  + dy * 0.35 * intensity + (Math.random() - 0.5) * 30;
+
+      nextLeft = clamp(nextLeft, 0, maxLeft);
+      nextTop  = clamp(nextTop,  0, maxTop);
+
+      // Place with overlap avoidance (impossible to overlap Yes)
+      placeNoSafely(nextLeft, nextTop);
+    }
+
+    // YES = celebrate + lock in (long distance friendly message)
+    yesBtn.addEventListener("click", () => {
+      msg.innerHTML = `<span class="success">YAYYY!! 🧡💚💞</span>`;
+      title.textContent = "It’s a long-distance Valentine! 💘";
+      subtitle.textContent = "I can’t wait to celebrate with you (even from afar) 🫶";
+
       yesBtn.disabled = true;
       noBtn.disabled = true;
-      yesBtn.style.filter = "brightness(1.02)";
+
       noBtn.style.opacity = "0.5";
       noBtn.style.cursor = "not-allowed";
 
-      // Celebration hearts
       popHearts(18);
 
-      // Optional: replace buttons with a cute line
       setTimeout(() => {
-        btnArea.innerHTML = `<div class="success">Now come here 👉👈 💖</div>`;
+        btnArea.innerHTML = `<div class="success">Sending you a million hugs 🧡💚</div>`;
       }, 900);
     });
 
     function popHearts(count = 12){
-      const emojis = ["💖","💘","💕","💗","💓","💞","✨"];
+      const emojis = ["🧡","💚","💛","💖","💘","✨"];
       for (let i=0;i<count;i++){
         const h = document.createElement("div");
         h.className = "float-heart";
         h.textContent = emojis[Math.floor(Math.random()*emojis.length)];
 
-        // random position within card
         const x = 15 + Math.random()*70;  // percent
         const y = 55 + Math.random()*20;  // percent
         h.style.left = x + "%";
