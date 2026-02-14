@@ -140,8 +140,7 @@
 <body>
   <div class="card" id="card">
     <div class="hearts"></div>
-    <h1 id="title">Hannah, will you be my valentine? 💘</h1>
-    <p id="subtitle">I have a very important question…</p>
+    <h1 id="title">Hannah, will you be my valentine? 💚🧡</h1>
 
     <div class="buttons" id="btnArea">
       <button id="yesBtn" aria-label="Yes">Yes 🧡</button>
@@ -167,11 +166,11 @@
     const noMessages = [
       "Are you sure? 🥺",
       "Wait… really? 😳",
-      "Try again 😌",
+      "But think of Jacks and Evangeline",
       "No button seems tired…",
-      "Okay but… think of the snacks 🍫",
-      "Think of the calls 📞",
-      "Last chance… 😭"
+      "But think of the heated blankets",
+      "Think of the cuddles",
+      "Please be my beautiful baby girl"
     ];
 
     function applyScales() {
@@ -363,9 +362,21 @@
 
     // YES = celebrate + lock in (long distance friendly message)
     yesBtn.addEventListener("click", () => {
-      msg.innerHTML = `<span class="success">YAYYY!! 🧡💚💞</span>`;
-      title.textContent = "It’s a long-distance Valentine! 💘";
-      subtitle.textContent = "I can’t wait to celebrate with you (even from afar) 🫶";
+      msg.innerHTML = `<span class="success">YAYYY!! 🧡💚</span>`;
+      title.textContent = "It’s a long-distance Valentine!";
+      subtitle.innerHTML = `
+      I can’t wait to celebrate with you (even from Houghton to Ames)
+      <div style="font-size:14px; opacity:.7; margin-top:6px;">
+      I love you the mostest^mostest^♾️^♾️^jackangeline!!!!
+      </div>
+      <img src="us.jpg" alt="Us"
+       style="
+         width:140px;
+         border-radius:16px;
+         margin-top:14px;
+         box-shadow:0 8px 22px rgba(0,0,0,.15);
+       ">
+      `;
 
       yesBtn.disabled = true;
       noBtn.disabled = true;
