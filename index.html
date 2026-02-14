@@ -1,79 +1,323 @@
 <!doctype html>
-<html>
-  <head>
-    <!-- Page setup -->
-    <meta charset="utf-8">
-    <title>Your title here</title>
-    <meta name="description" content="A brief description of your site for search engines">
-    <meta name="author" content="Information about the author here">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-    <link rel="icon" type="image/png" href="favicon.png">
-  
-    <!-- Stylesheets -->
-    <!-- Reset default styles and add support for google fonts -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" rel="stylesheet" type="text/css" />
-    <link href="http://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css" />
-   
-    <!-- Custom styles -->
-    <link href="style.css" rel="stylesheet" type="text/css" />
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Be My Valentine?</title>
+  <style>
+    :root{
+      --bg1:#ffdee9;
+      --bg2:#b5fffc;
+      --card:#ffffffcc;
+      --text:#1f2937;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color:var(--text);
+    }
+    .card{
+      width:min(680px, 92vw);
+      padding:32px 22px;
+      background:var(--card);
+      backdrop-filter: blur(8px);
+      border:1px solid #ffffff80;
+      border-radius:20px;
+      box-shadow:0 18px 60px rgba(0,0,0,.12);
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+    h1{
+      margin:0 0 10px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height:1.1;
+    }
+    p{
+      margin:0 0 22px;
+      font-size: clamp(16px, 2.2vw, 18px);
+      opacity:.9;
+    }
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>    
+    .buttons{
+      display:flex;
+      gap:14px;
+      justify-content:center;
+      align-items:center;
+      flex-wrap:wrap;
+      position:relative;
+      padding:18px 0 6px;
+      min-height:72px; /* helps when No becomes absolute */
+    }
 
-    <!-- Want to add Bootstrap? -->
-    <!-- Visit: https://getbootstrap.com/docs/4.3/getting-started/introduction/ -->
-    
-  </head>
-  
-  <body>
+    button{
+      border:0;
+      border-radius:999px;
+      padding:14px 26px;
+      font-size:18px;
+      cursor:pointer;
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+      user-select:none;
+      touch-action: manipulation;
+    }
+    #yesBtn{
+      background: #ff4d6d;
+      color:white;
+      box-shadow: 0 10px 22px rgba(255,77,109,.35);
+      transform: scale(1);
+    }
+    #noBtn{
+      background: #e5e7eb;
+      color:#111827;
+      box-shadow: 0 10px 22px rgba(0,0,0,.08);
+      transform: scale(1);
+      position:relative; /* becomes absolute when we start dodging */
+    }
 
-    <header id="header">
-      <img src="logo.png">
-      <h1>Simple Website</h1>
-      
-      <!-- Menu link fragment #id should match a div id. Example: <a href="#home"> links to <div id="home"></div>  -->
-      <ul class="main-menu">
-        <li><a href="#home">home</a></li>
-        <li><a href="#about">about</a></li>
-        <li><a href="#contact">contact</a></li>
-      </ul>                 
-    </header>
-   
-    <div id="container">
-      <div class="inner">
-        <div id="content"> 
-          
-          <div id="home" class="content-region hide">
-            <h2>Home</h2>
-            <p>
-              This is a simple website template published with Github Pages. <a href="https://github.com/zirafa/simple-website-template">Fork this repository</a> to create your own site!
-            </p>
-          </div>
-          
-          <div id="about" class="content-region hide">
-            <h2>About</h2>
-            <p>
-              Sed tempus urna et pharetra pharetra massa massa ultricies. Porttitor rhoncus dolor purus non enim praesent. Id aliquet risus feugiat in ante metus dictum. 
-            </p>
-          </div>
-          
-          <div id="contact" class="content-region hide">
-            <h2>Contact</h2>
-            <p>
-              Pellentesque nec nam aliquam sem et tortor consequat. Quisque sagittis purus sit amet volutpat consequat. Magna eget est lorem ipsum dolor. 
-            </p>
-          </div>
-          
-        </div>
-      </div>
+    button:hover{filter: brightness(1.03)}
+    button:active{transform: translateY(1px) scale(var(--scale, 1))}
+
+    .msg{
+      margin-top:16px;
+      min-height:28px;
+      font-size:18px;
+      font-weight:600;
+    }
+
+    .hearts{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:.55;
+      background:
+        radial-gradient(circle at 20% 15%, #ff4d6d55 0 8px, transparent 9px),
+        radial-gradient(circle at 80% 25%, #ff4d6d44 0 6px, transparent 7px),
+        radial-gradient(circle at 30% 80%, #ff4d6d33 0 7px, transparent 8px),
+        radial-gradient(circle at 70% 75%, #ff4d6d33 0 6px, transparent 7px);
+      filter: blur(.2px);
+    }
+
+    .success{
+      font-size: clamp(18px, 2.5vw, 22px);
+    }
+
+    /* little floating hearts for the YES celebration */
+    .float-heart{
+      position:absolute;
+      left:50%;
+      top:55%;
+      transform: translate(-50%, -50%);
+      font-size: 22px;
+      pointer-events:none;
+      animation: floatUp 900ms ease-out forwards;
+      opacity: 0.95;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
+    }
+    @keyframes floatUp{
+      from { transform: translate(-50%, -50%) translateY(0) scale(1); opacity: .95; }
+      to   { transform: translate(-50%, -50%) translateY(-90px) scale(1.6); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="hearts"></div>
+    <h1 id="title">Will you be my Valentine? 💘</h1>
+    <p id="subtitle">I have a very important question…</p>
+
+    <div class="buttons" id="btnArea">
+      <button id="yesBtn" aria-label="Yes">Yes 💖</button>
+      <button id="noBtn" aria-label="No">No 🙃</button>
     </div>
 
-    <footer>  
-      Footer region
-    </footer>
-    
-    <!-- Load additional JS scripts here -->
-    <script type="text/javascript" src="script.js"></script>
-    
-  </body>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <script>
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn  = document.getElementById("noBtn");
+    const msg    = document.getElementById("msg");
+    const card   = document.getElementById("card");
+    const btnArea= document.getElementById("btnArea");
+    const title  = document.getElementById("title");
+    const subtitle = document.getElementById("subtitle");
+
+    let noCount = 0;
+    let yesScale = 1;
+    let noScale  = 1;
+
+    const noMessages = [
+      "Are you sure? 🥺",
+      "Wait… really? 😳",
+      "Try again 😌",
+      "No button seems tired…",
+      "Okay but… think of the snacks 🍫",
+      "Think of the cuddles 🧸",
+      "Last chance… 😭"
+    ];
+
+    function applyScales() {
+      yesBtn.style.transform = `scale(${yesScale})`;
+      noBtn.style.transform  = `scale(${noScale})`;
+    }
+
+    // Make the No button smaller + Yes bigger whenever she tries clicking No
+    noBtn.addEventListener("click", (e) => {
+      noCount++;
+
+      // Update scales
+      yesScale = Math.min(yesScale + 0.14, 2.6);
+      noScale  = Math.max(noScale  - 0.12, 0.28);
+
+      applyScales();
+
+      // Update message
+      msg.textContent = noMessages[Math.min(noCount - 1, noMessages.length - 1)];
+
+      // After a few "no"s, start dodging (but still possible to click if determined)
+      if (noCount >= 3) enableDodge();
+    });
+
+    // If she hovers/touches the No button, it scoots away (after enabled)
+    let dodgeEnabled = false;
+
+    function enableDodge() {
+      if (dodgeEnabled) return;
+      dodgeEnabled = true;
+
+      // Make it able to move around inside the button area
+      noBtn.style.position = "absolute";
+
+      // Put it near where it already is
+      const areaRect = btnArea.getBoundingClientRect();
+      const noRect = noBtn.getBoundingClientRect();
+      const startLeft = noRect.left - areaRect.left;
+      const startTop  = noRect.top  - areaRect.top;
+
+      noBtn.style.left = `${startLeft}px`;
+      noBtn.style.top  = `${startTop}px`;
+
+      // Move on hover (desktop) and touchstart/pointerdown (mobile)
+      const moveHandler = (ev) => {
+        // Keep it a bit fair: only dodge sometimes
+        if (Math.random() < 0.1) return;
+
+        dodgeNoButton(ev);
+      };
+
+      noBtn.addEventListener("mouseenter", moveHandler);
+      noBtn.addEventListener("pointerdown", moveHandler);
+
+      // If user resizes/rotates, keep within bounds
+      window.addEventListener("resize", keepNoInBounds);
+    }
+
+    function keepNoInBounds() {
+      if (!dodgeEnabled) return;
+      const { maxLeft, maxTop } = getBounds();
+      const curLeft = px(noBtn.style.left);
+      const curTop  = px(noBtn.style.top);
+
+      noBtn.style.left = `${clamp(curLeft, 0, maxLeft)}px`;
+      noBtn.style.top  = `${clamp(curTop, 0, maxTop)}px`;
+    }
+
+    function dodgeNoButton(ev) {
+      const { maxLeft, maxTop } = getBounds();
+
+      // If the button gets too tiny, make it basically impossible 😈
+      const intensity = Math.min(1 + noCount * 0.15, 2.2);
+
+      const randLeft = Math.random() * maxLeft;
+      const randTop  = Math.random() * maxTop;
+
+      // Nudge away from pointer if we can detect it
+      let left = randLeft;
+      let top  = randTop;
+
+      const areaRect = btnArea.getBoundingClientRect();
+      const pointerX = ev?.clientX ?? (areaRect.left + areaRect.width / 2);
+      const pointerY = ev?.clientY ?? (areaRect.top + areaRect.height / 2);
+
+      const currentLeft = px(noBtn.style.left);
+      const currentTop  = px(noBtn.style.top);
+
+      // Vector away from pointer
+      const btnCenterX = areaRect.left + currentLeft + noBtn.offsetWidth / 2;
+      const btnCenterY = areaRect.top  + currentTop  + noBtn.offsetHeight / 2;
+      const dx = btnCenterX - pointerX;
+      const dy = btnCenterY - pointerY;
+
+      left = clamp(currentLeft + dx * 0.35 * intensity + (Math.random() - 0.5) * 40, 0, maxLeft);
+      top  = clamp(currentTop  + dy * 0.35 * intensity + (Math.random() - 0.5) * 30, 0, maxTop);
+
+      noBtn.style.left = `${left}px`;
+      noBtn.style.top  = `${top}px`;
+    }
+
+    function getBounds() {
+      const areaW = btnArea.clientWidth;
+      const areaH = btnArea.clientHeight;
+      const btnW  = noBtn.offsetWidth;
+      const btnH  = noBtn.offsetHeight;
+
+      // Keep fully inside the area
+      return {
+        maxLeft: Math.max(0, areaW - btnW),
+        maxTop:  Math.max(0, areaH - btnH)
+      };
+    }
+
+    function clamp(n, min, max){ return Math.min(max, Math.max(min, n)); }
+    function px(v){ return Number(String(v || "0").replace("px","")) || 0; }
+
+    // YES = celebrate + lock in
+    yesBtn.addEventListener("click", () => {
+      msg.innerHTML = `<span class="success">YAYYY!! 💞🥰💍</span>`;
+      title.textContent = "It’s a date! 💘";
+      subtitle.textContent = "Best decision ever. See you soon 😘";
+
+      // Disable buttons
+      yesBtn.disabled = true;
+      noBtn.disabled = true;
+      yesBtn.style.filter = "brightness(1.02)";
+      noBtn.style.opacity = "0.5";
+      noBtn.style.cursor = "not-allowed";
+
+      // Celebration hearts
+      popHearts(18);
+
+      // Optional: replace buttons with a cute line
+      setTimeout(() => {
+        btnArea.innerHTML = `<div class="success">Now come here 👉👈 💖</div>`;
+      }, 900);
+    });
+
+    function popHearts(count = 12){
+      const emojis = ["💖","💘","💕","💗","💓","💞","✨"];
+      for (let i=0;i<count;i++){
+        const h = document.createElement("div");
+        h.className = "float-heart";
+        h.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+
+        // random position within card
+        const x = 15 + Math.random()*70;  // percent
+        const y = 55 + Math.random()*20;  // percent
+        h.style.left = x + "%";
+        h.style.top  = y + "%";
+        h.style.animationDelay = (Math.random()*180) + "ms";
+        h.style.fontSize = (18 + Math.random()*20) + "px";
+
+        card.appendChild(h);
+        h.addEventListener("animationend", () => h.remove());
+      }
+    }
+  </script>
+</body>
 </html>
